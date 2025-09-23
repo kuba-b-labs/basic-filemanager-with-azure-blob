@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/backend-v0.7.0...backend-v0.8.0) (2025-09-23)
+
+
+### Features
+
+* **backend:** testing gha ([4391c86](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/commit/4391c868dd68c592e5664e94ff06db56cea2df37))
+
 ## [0.7.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/backend-v0.6.1...backend-v0.7.0) (2025-09-23)
 
 
