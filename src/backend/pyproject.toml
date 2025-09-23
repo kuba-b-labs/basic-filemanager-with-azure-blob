@@ -1,6 +1,6 @@
 [project]
 name = "filemanager-backend"
-version = "0.6.1"
+version = "0.7.0"
 description = "fastapi backend with azure sdk for storage management"
 readme = "README.md"
 requires-python = ">=3.13"

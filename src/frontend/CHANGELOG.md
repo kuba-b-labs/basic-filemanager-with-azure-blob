@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/frontend-v0.2.5...frontend-v0.3.0) (2025-09-23)
+
+
+### Features
+
+* add filemanager using fastapi, postgres, entra id tokens, azure blob storage ([472083d](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/commit/472083d8aa087101e762a8406914b476873988b8))
+* testing gha ([3d38bf1](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/commit/3d38bf14b78fc78dbdb336a60b695dc8edc93663))
+
 ## [0.2.5](https://github.com/kuba-b-labs/blob-upload-site/compare/frontend-v0.2.4...frontend-v0.2.5) (2025-09-23)
 
 

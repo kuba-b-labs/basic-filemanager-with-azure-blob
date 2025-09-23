@@ -1,4 +1,4 @@
 {
-  "src/backend": "0.6.1",
-  "src/frontend": "0.2.5"
+  "src/backend": "0.7.0",
+  "src/frontend": "0.3.0"
 }
