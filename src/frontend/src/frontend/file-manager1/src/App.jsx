@@ -13,7 +13,7 @@ export default function FileManager() {
   const isAuthenticated = useIsAuthenticated();
 
   const API = "http://localhost:8000";
-
+  // Testing gha
   // 1) Bootstrap: jeśli są konta w cache, ustaw activeAccount
   useEffect(() => {
     const all = instance.getAllAccounts();
