@@ -1,0 +1,108 @@
+name: Dev Testing on Container Instances
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - dev
+        paths:
+            - "src/backend/**"
+            - "src/frontend/**"
+
+permissions: # this is needed for pushing the image to ghcr.io
+  contents: read
+  packages: write
+
+env:
+    RG: dev
+    LOCATION: polandcentral
+    BPORT: 8000
+    FPORT: 8080
+jobs:
+    Create-backend-container:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Docker Login to ghcr.io
+              uses: docker/login-action@v3
+              with:
+                username: ${{ github.actor }} # means owner of the repo
+                password: ${{ secrets.GITHUB_TOKEN }} # created at runtime, can be used in place of password
+                registry: ghcr.io
+            - name: Build and push backend image
+              uses: docker/build-push-action@v6
+              with:
+                 push: true
+                 context: ./src/backend
+                 tags: |
+                    ghcr.io/kuba-b-labs/backend-dev:latest
+    
+            - name: Login to Azure
+              run: az login --service-principal --username ${{ secrets.AZURE_SP_USERNAME }} --password ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+            
+            - name: Create Container Instance for backend
+              run: |
+                # delete if exist
+                az container delete \
+                    --resource-group $RG \
+                    --name filemanager-backend \
+                    --yes || true
+
+                # create new container
+                az container create \
+                    --resource-group $RG \
+                    --name filemanager-backend \
+                    --image ghcr.io/kuba-b-labs/backend-dev:latest \
+                    --ports $BPORT \
+                    --ip-address Public \
+                    --os-type Linux \
+                    --memory 1.5 \
+                    --cpu 1 \
+                    --location $LOCATION
+    Create-frontend-container:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Docker Login to ghcr.io
+              uses: docker/login-action@v3
+              with:
+                username: ${{ github.actor }} # means owner of the repo
+                password: ${{ secrets.GITHUB_TOKEN }} # created at runtime, can be used in place of password
+                registry: ghcr.io
+
+            - name: Build and push backend image
+              uses: docker/build-push-action@v6
+              with:
+                 push: true
+                 context: ./src/frontend/src/frontend/file-manager1
+                 tags: |
+                    ghcr.io/kuba-b-labs/frontend-dev:latest
+
+            - name: Login to Azure
+              run: az login --service-principal --username ${{ secrets.AZURE_SP_USERNAME }} --password ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+              
+            - name: Create Container Instance for frontend
+              run: |
+                # delete if exist
+                az container delete \
+                    --resource-group $RG \
+                    --name filemanager-frontend \
+                    --yes || true
+
+                # create new container
+                az container create \
+                    --resource-group $RG \
+                    --name filemanager-frontend \
+                    --image ghcr.io/kuba-b-labs/frontend-dev:latest \
+                    --ports $FPORT \
+                    --ip-address Public \
+                    --os-type Linux \
+                    --memory 1.5 \
+                    --cpu 1 \
+                    --location $LOCATION
+
+

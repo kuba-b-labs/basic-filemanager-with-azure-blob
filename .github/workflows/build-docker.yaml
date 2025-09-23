@@ -1,0 +1,52 @@
+name: Backend Docker Build and Push
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - backend*
+      - frontend*
+env:
+  IMAGE_NAME_BACKEND: ${{ github.repository_owner }}/filemanager-backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository_owner }}/filemanager-frontend
+
+permissions: # this is needed for pushing the image to ghcr.io
+  contents: read
+  packages: write
+
+jobs:
+  Build-Docker-Image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Docker Login to ghcr.io
+      uses: docker/login-action@v3
+      with:
+        username: ${{ github.actor }} # means owner of the repo
+        password: ${{ secrets.GITHUB_TOKEN }} # created at runtime, can be used in place of password
+        registry: ghcr.io
+
+    - name: Get tag
+      id: tag
+      run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v6
+      if: startsWith(github.ref_name,'backend')
+      with:
+        push: true
+        context: ./src/backend
+        tags: |
+            ghcr.io/${{ env.IMAGE_NAME_BACKEND }}:${{ steps.tag.outputs.tag }}
+            ghcr.io/${{ env.IMAGE_NAME_BACKEND }}:latest
+   
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v6
+      if: startsWith(github.ref_name, 'frontend')
+      with:
+        push: true
+        context: ./src/frontend/src/frontend/file-manager1
+        tags: |
+         ghcr.io/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.tag.outputs.tag }}
+         ghcr.io/${{ env.IMAGE_NAME_FRONTEND }}:latest

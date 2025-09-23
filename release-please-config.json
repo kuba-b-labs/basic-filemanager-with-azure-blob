@@ -1,0 +1,32 @@
+{
+  "packages": {
+    "src/backend": {
+        "release-type": "python",
+        "package-name": "filemanager-backend",
+        "component": "backend",
+        "include-component-in-tag": true,
+        "changelog-path": "CHANGELOG.md",
+        "extra-files": [
+         {
+           "type": "toml",
+           "path": "uv.lock",
+           "jsonpath": "$.package[?(@.name.value=='backend')].version"
+         }
+         ]
+     },
+    "src/frontend":{
+      "release-type": "python",
+      "package-name": "filemanager-frontend",
+      "component": "frontend",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md",
+      "extra-files":[
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name.value=='frontend')].version"
+        }
+      ]
+    }
+    }
+}
