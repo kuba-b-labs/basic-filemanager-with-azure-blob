@@ -1,0 +1,12 @@
+[project]
+name = "url_maker"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "azure-functions>=1.23.0",
+    "azure-identity>=1.25.0",
+    "azure-storage-blob>=12.26.0",
+    "dotenv>=0.9.9",
+]
