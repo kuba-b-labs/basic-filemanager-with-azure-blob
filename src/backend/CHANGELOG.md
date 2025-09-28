@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/backend-v0.8.0...backend-v0.9.0) (2025-09-28)
+
+
+### Features
+
+* **backend:** added azure functions blob download url retrieve endpoint ([e2633d1](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/commit/e2633d15c2948f7874f3eddef62239dd9d7259bf))
+
 ## [0.8.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/backend-v0.7.0...backend-v0.8.0) (2025-09-23)
 
 
