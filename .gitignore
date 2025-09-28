@@ -217,3 +217,12 @@ terraform/environments/dev/terraform.tfstate.backup
 terraform/environments/dev/.terraform/providers/registry.terraform.io/hashicorp/azurerm/4.45.1/windows_386/terraform-provider-azurerm_v4.45.1_x5.exe
 terraform/environments/dev/.terraform.lock.hcl
 terraform/environments/dev/.terraform.tfstate.lock.info
+__azurite_db_blob__.json
+__azurite_db_blob_extent__.json
+__blobstorage__/0c3f278d-b825-4cb2-b60a-7a3ae9634a40
+__blobstorage__/60befddc-b130-4f51-87ee-fc6e718feecf
+__blobstorage__/e61b5bf5-b571-4b3a-a51a-621658db91ef
+__blobstorage__/f6cc3d24-6c5d-4df5-8be4-3f298af77783
+terraform/environments/prod/.terraform.lock.hcl
+terraform/environments/prod/.terraform/providers/registry.terraform.io/hashicorp/azurerm/4.45.1/windows_386/terraform-provider-azurerm_v4.45.1_x5.exe
+terraform/environments/prod/terraform.tfstate

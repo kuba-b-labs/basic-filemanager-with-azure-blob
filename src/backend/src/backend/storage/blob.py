@@ -6,15 +6,17 @@ from fastapi import HTTPException
 from os import getenv
 from dotenv import load_dotenv
 
-load_dotenv()
-aUrl = getenv("aUrl")
-credential = DefaultAzureCredential()
+#load_dotenv()
+#aUrl = getenv("aUrl")
+#credential = DefaultAzureCredential()
+aUrl = "http://127.0.0.1:10000/devstoreaccount1"
+accountKey = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 
 
 class storage:
     def __init__(self):
         """Initiate storage account connection"""
-        self.service = BlobServiceClient(account_url=aUrl, credential=credential)
+        self.service = BlobServiceClient(account_url=aUrl, credential=accountKey)
 
     def close(self):
         """Close storage account connection"""

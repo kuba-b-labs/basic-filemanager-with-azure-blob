@@ -7,6 +7,7 @@ from .routers.jwt1 import tokenValidation
 from .storage.blob import storage
 from .database.database import postgres, checkList, checkWrite
 from typing import Annotated
+from requests import get
 
 saccount = "saccount1"
 security = HTTPBearer()
@@ -96,13 +97,18 @@ async def downloadBlob(
             raise HTTPException(status_code=404, detail="Kontener nie istnieje")
         if not checkList(acl):
             raise HTTPException(status_code=403, detail="Brak uprawnień")
-        storageConnection = storage()
-        blob = storageConnection.downloadBlob(dstContainer, filename)
-        # wypakowanie tuple, bo mimetype zwraca tuple (value1, value2)
-        mimeType, encoding = guess_type(filename)
-        if mimeType is None:
-            mimeType = "application/octet-stream"
-        return StreamingResponse(blob.chunks(), media_type=mimeType)
+        # v1 - api sends full file 
+        # storageConnection = storage()
+        # blob = storageConnection.downloadBlob(dstContainer, filename)
+        # # wypakowanie tuple, bo mimetype zwraca tuple (value1, value2)
+        # mimeType, encoding = guess_type(filename)
+        # if mimeType is None:
+        #     mimeType = "application/octet-stream"
+        # return StreamingResponse(blob.chunks(), media_type=mimeType)
+        
+        # v2 - gen download links with azure functions
+        blobDownloadUrl = get(f'http://localhost:7071/api/download?container={dstContainer}&blob={filename}')
+        return blobDownloadUrl.text
 
 
 @app.post("/upload/{dstContainer}")
