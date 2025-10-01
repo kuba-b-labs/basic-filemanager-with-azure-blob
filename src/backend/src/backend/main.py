@@ -1,17 +1,25 @@
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
-from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from mimetypes import guess_type
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .routers.jwt1 import tokenValidation
 from .storage.blob import storage
 from .database.database import postgres, checkList, checkWrite
 from typing import Annotated
 from requests import get
+# for azure
+# from os import getenv
 
+# without urlmaker from function app
+# from fastapi.responses import StreamingResponse
+# from mimetypes import guess_type
+
+
+# local dev
 saccount = "saccount1"
+# for azure
+# saccount = getenv("storageAccountName")
+
 security = HTTPBearer()
-# Testing gha1i1
 def authUser(credentials: HTTPAuthorizationCredentials = Depends(security)):
     upn = tokenValidation(credentials.credentials)
     return upn

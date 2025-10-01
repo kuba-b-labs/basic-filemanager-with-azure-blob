@@ -6,12 +6,14 @@ import "./index.css";
 
 export default function FileManager() {
   const [files, setFiles] = useState([]);
+  const [containers, setContainers] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [dstContainer, setDstContainer] = useState("");
   const [authStatus, setAuthStatus] = useState("Nie zalogowano");
   const [notifications, setNotifications] = useState([]);
   const [hasFetched, setHasFetched] = useState(false);
   const [contextMenu, setContextMenu] = useState(null);
+  const [isRootView, setIsRootView] = useState(true);
 
   const { instance, inProgress } = useMsal();
   const isAuthenticated = useIsAuthenticated();
@@ -38,6 +40,7 @@ export default function FileManager() {
     const cbId = instance.addEventCallback((event) => {
       if (event.eventType === EventType.LOGIN_SUCCESS && event.payload?.account) {
         instance.setActiveAccount(event.payload.account);
+        fetchContainers();
       }
     });
     return () => {
@@ -72,10 +75,33 @@ export default function FileManager() {
   const logout = () => instance.logoutRedirect();
 
   // 📂 API calls
-  const fetchFiles = async () => {
-    if (!dstContainer) return pushNotification("Podaj nazwę folderu!", "error");
+  const fetchContainers = async () => {
     try {
-      const res = await authFetch(`${API}/listblobs/${dstContainer}`);
+      const res = await authFetch(`${API}/containers`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setContainers([...data].sort((a, b) => a.localeCompare(b)));
+      setIsRootView(true);
+      setDstContainer("");
+      setFiles([]);
+      setHasFetched(true);
+      if (data.length === 0) pushNotification("Brak folderów.", "info");
+    } catch {
+      setContainers([]);
+      pushNotification("Błąd pobierania listy folderów.", "error");
+    }
+  };
+
+  const openContainer = (name) => {
+    setDstContainer(name);
+    setIsRootView(false);
+    fetchFiles(name);
+  };
+
+  const fetchFiles = async (containerName = dstContainer) => {
+    if (!containerName) return pushNotification("Podaj nazwę folderu!", "error");
+    try {
+      const res = await authFetch(`${API}/listblobs/${containerName}`);
       if (res.status === 404) {
         setFiles([]);
         pushNotification("❌ Kontener nie istnieje!", "error");
@@ -97,14 +123,44 @@ export default function FileManager() {
   const uploadFile = async () => {
     if (!selectedFile) return pushNotification("Nie wybrano pliku!", "error");
     if (!dstContainer) return pushNotification("Podaj nazwę folderu!", "error");
-    const formData = new FormData();
-    formData.append("entry", selectedFile);
-    const res = await authFetch(`${API}/upload/${dstContainer}`, { method: "POST", body: formData });
-    if (!res.ok) return;
-    setSelectedFile(null);
-    pushNotification("✅ Plik został wrzucony.", "success");
-    fetchFiles();
+
+    try {
+      // 🔹 najpierw GET do API na listblobs dla upewnienia się o folderze
+      await authFetch(`${API}/listblobs/${dstContainer}`);
+
+      const formData = new FormData();
+      formData.append("entry", selectedFile);
+      const res = await authFetch(`${API}/upload/${dstContainer}`, { method: "POST", body: formData });
+      if (!res.ok) return;
+      setSelectedFile(null);
+      pushNotification("✅ Plik został wrzucony.", "success");
+      fetchFiles();
+    } catch {
+      pushNotification("Błąd przy wrzucaniu pliku.", "error");
+    }
   };
+
+const deleteContainer = async (containerName) => {
+  if (!containerName) return pushNotification("Podaj nazwę folderu!", "error");
+  try {
+    const res = await authFetch(`${API}/delete/${containerName}`, { method: "DELETE" });
+    if (res.ok) {
+      pushNotification(`🗑️ Folder "${containerName}" został usunięty.`, "success");
+      if (isRootView) {
+        fetchContainers();
+      } else {
+        // jeżeli usuwasz folder w którym jesteś → wróć do listy folderów
+        setIsRootView(true);
+        setDstContainer("");
+        fetchContainers();
+      }
+    } else {
+      pushNotification(`❌ Nie udało się usunąć folderu "${containerName}".`, "error");
+    }
+  } catch {
+    pushNotification("Błąd przy usuwaniu folderu.", "error");
+  }
+};
 
   const deleteFile = async (filename) => {
     if (!dstContainer) return pushNotification("Podaj nazwę folderu!", "error");
@@ -145,6 +201,7 @@ export default function FileManager() {
       if (res.ok) {
         setAuthStatus(`Folder "${dstContainer}" został utworzony ✅`);
         pushNotification(`📂 Folder "${dstContainer}" został utworzony.`, "success");
+        if (isRootView) fetchContainers();
       } else {
         const text = await res.text().catch(() => "");
         setAuthStatus(`Folder nie został utworzony ❌ (HTTP ${res.status})`);
@@ -170,8 +227,9 @@ export default function FileManager() {
       if (action === "delete") deleteFile(filename);
     }
     if (type === "folder") {
+      if (action === "open") openContainer(filename);
       if (action === "create") createContainer();
-      if (action === "upload") uploadFile();
+      if (action === "deleteFolder") deleteContainer(filename);
     }
     setContextMenu(null);
   };
@@ -181,7 +239,18 @@ export default function FileManager() {
   if (inProgress !== InteractionStatus.None) {
     return <div style={{ padding: 16 }}>Trwa uwierzytelnianie…</div>;
   }
-
+  if (!isAuthenticated) {
+    return (
+      <div className="login-screen">
+        <div className="login-box">
+          <h2>WELCOME</h2>
+          <button className="login-btn" onClick={login}>
+            Zaloguj się przez Microsoft
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="filemanager">
       {/* 🔝 Header */}
@@ -215,16 +284,51 @@ export default function FileManager() {
           onChange={(e) => setDstContainer(e.target.value)}
         />
         <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
-        <button onClick={createContainer}>Stwórz folder</button>
-        <button onClick={uploadFile}>Wrzuc plik</button>
-        <button onClick={fetchFiles}>Wyświetl listę plików</button>
+
+        {isRootView ? (
+          <>
+            <button onClick={createContainer}>Stwórz folder (kontener)</button>
+            <button onClick={fetchContainers}>Odśwież listę folderów</button>
+            
+          </>
+        ) : (
+          <>
+            <button onClick={createContainer}>Stwórz folder</button>
+            <button onClick={uploadFile}>Wrzuć plik</button>
+            <button onClick={() => fetchFiles(dstContainer)}>Wyświetl listę plików</button>
+            <button onClick={fetchContainers}>⬅️ Wróć do folderów</button>
+            <button onClick={() => deleteContainer(dstContainer)}>🗑️ Usuń ten folder</button>
+          </>
+        )}
       </div>
 
       {/* 📋 Tabela */}
       <div className="fm-table-container">
-        {hasFetched && files.length === 0 ? (
-          <div className="fm-empty">📂 Brak plików w folderze</div>
-        ) : (
+        {isRootView ? (
+          containers && containers.length > 0 ? (
+            <table className="fm-table">
+              <thead>
+                <tr>
+                  <th>Foldery</th>
+                </tr>
+              </thead>
+              <tbody>
+                {containers.map((c, idx) => (
+                  <tr
+                    key={idx}
+                    onClick={() => openContainer(c)}
+                    onContextMenu={(e) => handleContextMenu(e, "folder", c)}
+                    className="fm-row folder"
+                  >
+                    <td>📁 {c}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="fm-empty">📂 Brak folderów</div>
+          )
+        ) : files && files.length > 0 ? (
           <table className="fm-table">
             <thead>
               <tr>
@@ -243,6 +347,8 @@ export default function FileManager() {
               ))}
             </tbody>
           </table>
+        ) : (
+          <div className="fm-empty">📂 Brak plików w folderze</div>
         )}
       </div>
 
@@ -254,8 +360,9 @@ export default function FileManager() {
         >
           {contextMenu.type === "folder" && (
             <>
+              <li onClick={() => handleMenuClick("open")}>📂 Otwórz</li>
               <li onClick={() => handleMenuClick("create")}>➕ Utwórz folder</li>
-              <li onClick={() => handleMenuClick("upload")}>⬆️ Wrzuc plik</li>
+              <li onClick={() => handleMenuClick("deleteFolder")}>🗑️ Usuń folder</li>
             </>
           )}
           {contextMenu.type === "file" && (

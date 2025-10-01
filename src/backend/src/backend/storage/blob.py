@@ -1,14 +1,13 @@
-# from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from azure.core.exceptions import ResourceNotFoundError
-from azure.identity import DefaultAzureCredential
 from fastapi import HTTPException
-from os import getenv
-from dotenv import load_dotenv
 
-#load_dotenv()
-#aUrl = getenv("aUrl")
-#credential = DefaultAzureCredential()
+# from azure.identity import DefaultAzureCredential
+# from os import getenv 
+# aUrl = getenv("aUrl")
+# credential = DefaultAzureCredential()
+
+# for local dev
 aUrl = "http://127.0.0.1:10000/devstoreaccount1"
 accountKey = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 
@@ -16,7 +15,9 @@ accountKey = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1S
 class storage:
     def __init__(self):
         """Initiate storage account connection"""
+        # for local dev
         self.service = BlobServiceClient(account_url=aUrl, credential=accountKey)
+        # self.service = BlobServiceClient(account_url=aUrl,credential=credential)
 
     def close(self):
         """Close storage account connection"""
@@ -27,6 +28,7 @@ class storage:
     # -----------------------------------------------------------
     def createContainer(self, container: str):
         """Create container with specified name"""
+        # TO DO: add container name validation
         self.service.create_container(container)
 
     def deleteContainer(self, dstContainer: str):

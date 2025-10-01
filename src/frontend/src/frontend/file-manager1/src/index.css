@@ -134,3 +134,41 @@
 .context-menu li:hover {
   background: #333;
 }
+.login-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #e6f2f0;
+}
+
+.login-box {
+  background: #1c1f2b;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  width: 320px;
+}
+
+.login-box h2 {
+  color: #00c896;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.login-btn {
+  background: #00c896;
+  border: none;
+  color: white;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s;
+}
+
+.login-btn:hover {
+  background: #00a37a;
+}
