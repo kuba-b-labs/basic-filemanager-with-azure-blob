@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, Path
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .routers.jwt1 import tokenValidation
@@ -23,7 +23,7 @@ security = HTTPBearer()
 def authUser(credentials: HTTPAuthorizationCredentials = Depends(security)):
     upn = tokenValidation(credentials.credentials)
     return upn
-
+regexPattern = "^[a-z0-9-]{3,63}[a-z0-9]$"
 
 app = FastAPI()
 
@@ -38,7 +38,7 @@ app.add_middleware(
 
 # ---------------Kontenery-------------------------
 @app.post("/container/create/{containerName}")
-async def newContainer(containerName: str, username: Annotated[str, Depends(authUser)]):
+async def newContainer(containerName: Annotated[str, Path(pattern=regexPattern)], username: Annotated[str, Depends(authUser)]):
     async with postgres() as db:
         containerExist = await db.getContainer(containerName)
         uId = await db.getUser(username)
@@ -62,7 +62,7 @@ async def listContainers(username: Annotated[str, Depends(authUser)]):
 
 
 @app.delete("/delete/{containerName}")
-async def rmContainer(containerName: str, username: Annotated[str, Depends(authUser)]):
+async def rmContainer(containerName: Annotated[str, Path(pattern=regexPattern)], username: Annotated[str, Depends(authUser)]):
     async with postgres() as db:
         containerExist = await db.getContainer(containerName)
         aclCheck = await db.getACL(containerName, username)
@@ -77,7 +77,7 @@ async def rmContainer(containerName: str, username: Annotated[str, Depends(authU
 
 # ------------------Pliki------------------------------
 @app.get("/listblobs/{dstContainer}")
-async def listBlobs(dstContainer: str, username: Annotated[str, Depends(authUser)]):
+async def listBlobs(dstContainer: Annotated[str, Path(pattern=regexPattern)], username: Annotated[str, Depends(authUser)]):
     async with postgres() as db:
         acl = await db.getACL(dstContainer, username)
         containerExist = await db.getContainer(dstContainer)
@@ -96,7 +96,7 @@ async def listBlobs(dstContainer: str, username: Annotated[str, Depends(authUser
 
 @app.get("/download/{dstContainer}/{filename}")
 async def downloadBlob(
-    dstContainer: str, filename: str, username: Annotated[str, Depends(authUser)]
+    dstContainer: Annotated[str, Path(pattern=regexPattern)], filename: str, username: Annotated[str, Depends(authUser)]
 ):
     async with postgres() as db:
         containerExist = await db.getContainer(dstContainer)
@@ -121,7 +121,7 @@ async def downloadBlob(
 
 @app.post("/upload/{dstContainer}")
 async def uploadBlob(
-    dstContainer: str,
+    dstContainer: Annotated[str, Path(pattern=regexPattern)],
     username: Annotated[str, Depends(authUser)],
     entry: UploadFile = File(...),
 ):
@@ -141,7 +141,7 @@ async def uploadBlob(
 
 @app.delete("/delete/{dstContainer}/{filename}")
 async def deleteBlob(
-    dstContainer: str, filename: str, username: Annotated[str, Depends(authUser)]
+    dstContainer: Annotated[str, Path(pattern=regexPattern)], filename: str, username: Annotated[str, Depends(authUser)]
 ):
     async with postgres() as db:
         containerExist = await db.getContainer(dstContainer)
