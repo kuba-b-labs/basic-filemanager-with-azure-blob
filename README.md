@@ -10,31 +10,25 @@ A basic file manager demonstrating FastAPI, Azure SDK for Python integration, au
 - **PostgreSQL** is used for storing users, containers, and ACL (permissions).
 - **Frontend** built with React and MSAL for SPA authentication.
 
-## Project Structure
+## Permission requirements
+- Storage Account Blob Data Contributor for function app for generating download urls
+- User Access Administrator for service principal of terraform to add permissions for function app
+- at least Contributor for service principal on the "dev" resource group level for provisioning resources
 
-```
-src/
-  backend/
-    main.py                # FastAPI app entry
-    routers/
-      auth.py              # Username/password login, token generation when not using entra id
-      jwt1.py              # Entra ID JWT validation
-    database/
-      database.py          # PostgreSQL connection, user/container/ACL logic
-      init/
-        init.db            # PostgreSQL init.db script for creating tables and relations
-    storage/
-      blob.py              # Azure Blob Storage operations
-  frontend/
-    file-manager1/
-      src/
-        App.jsx            # File manager UI
-        authConfig.js      # MSAL/Entra config
-terraform/
-  environments/
-    dev/
-      provider.tf          # Azure provider config
-```
+## Azure Function App
+- Uses 3.12 Python runtime with v2 version of the Function app
+- Consume Plan for the app service
+## Env variables
+- ISSUER="https://login.microsoftonline.com/{tenant-id}/v2.0" **BACKEND**
+- tenantUrl="https://login.microsoftonline.com/{tenant-id}/discovery/v2.0/keys" **BACKEND**
+- audience=api://{api-id} for who is entra id issuing a token **BACKEND**
+- "DB" connection string to postgres - **BACKEND**
+- aUrl=storageAccountURL**BACKEND**
+- storageAccountName **BACKEND**
+## Frontend
+- On app registration you need to specify the redirection path for your api
+- as this project is not yet set up for htpps encryption you can use http://localhost:8000 like in code
+  or change it for your own
 
 ## Authentication & Authorization
 
@@ -48,6 +42,7 @@ terraform/
 - `POST /container/create/{containerName}` — Create new storage container (requires auth).
 - `GET /containers` — List accessible containers for user.
 - `POST /upload/{dstContainer}` — Upload file to container (requires permission).
+- `POST /download/{dstContainer}/{filename}` — Get a file download url (requires permission).
 - Additional endpoints: manage blobs, containers, permissions.
 
 ## Database Schema
@@ -82,6 +77,7 @@ terraform/
 2. **Database**
    - Provision PostgreSQL (local or cloud).
    - Create tables: USERS, CONTAINERS, ACL as per schema.
+   - You can use init.db file in the backend folder for quick setup
 3. **Environment Variables**
    - Set up `.env` with DB, Azure, and Entra settings (`DB`, `SECRET`, `ISSUER`, etc.).
 4. **Run Backend**
