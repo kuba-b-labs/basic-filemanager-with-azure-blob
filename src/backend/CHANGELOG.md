@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/backend-v0.9.0...backend-v0.10.0) (2025-10-01)
+
+
+### Features
+
+* **backend:** added path parameter - blob container name - validation ([41b80f4](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/commit/41b80f402642844f53c02166bf5042ab19987c22))
+
 ## [0.9.0](https://github.com/kuba-b-labs/basic-filemanager-with-azure-blob/compare/backend-v0.8.0...backend-v0.9.0) (2025-09-28)
 
 
