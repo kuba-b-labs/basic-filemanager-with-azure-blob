@@ -5,6 +5,7 @@ A basic file manager demonstrating FastAPI, Azure SDK for Python integration, au
 <p align="center">
 <img width=50% height=50% alt="image" src="https://github.com/user-attachments/assets/d49e5485-5686-49f5-8157-d660a72a80af" />
 </p>
+
 ## After Authentication
 <p align="center">
 <img width=50% height=50% alt="image" src="https://github.com/user-attachments/assets/c24b4c44-0562-4832-8d8a-d6582aafae03" />
