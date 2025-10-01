@@ -25,60 +25,27 @@
   color: #ddd;
 }
 
-.fm-login button {
-  background: #0f9d58;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.fm-login button:hover {
-  background: #0c7a45;
-}
-.fm-login span {
-  margin-right: 10px;
+.fm-login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.fm-notifications {
-  margin: 10px;
-}
-.fm-note {
-  padding: 6px;
-  border-radius: 4px;
-  margin-bottom: 6px;
+.fm-user {
+  color: #aaa;
   font-size: 14px;
 }
-.fm-note.error { background: #fee2e2; color: #b91c1c; }
-.fm-note.success { background: #dcfce7; color: #166534; }
-.fm-note.info { background: #e5e7eb; color: #111827; }
 
-.fm-controls {
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  background: #181818;
-  border-bottom: 1px solid #222;
-}
-.fm-controls input[type="text"],
-.fm-controls input[type="file"] {
-  background: #222;
-  color: #ddd;
-  border: 1px solid #444;
-  padding: 5px;
-  border-radius: 4px;
-}
-.fm-controls button {
-  background: #3b82f6;
+.fm-btn {
+  background: #0f9d58;
+  color: #fff;
   border: none;
-  color: white;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 4px;
   cursor: pointer;
 }
-.fm-controls button:hover {
-  background: #2563eb;
+.fm-btn:hover {
+  background: #13b368;
 }
 
 .fm-table-container {
@@ -99,19 +66,17 @@
   border-bottom: 1px solid #222;
 }
 
-.fm-row.file {
-  background: #181818;
-  cursor: context-menu;
-}
-.fm-row:hover {
-  background: #2a2a2a;
+.fm-row.folder {
+  background: #1a1a1a;
+  cursor: pointer;
 }
 
-.fm-empty {
-  padding: 20px;
-  text-align: center;
-  color: #999;
-  font-style: italic;
+.fm-row.file {
+  background: #181818;
+}
+
+.fm-row:hover {
+  background: #2a2a2a;
 }
 
 .context-menu {

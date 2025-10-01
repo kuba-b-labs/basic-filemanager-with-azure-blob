@@ -1,14 +1,51 @@
-    #   - name: Login to Azure
-    #     uses: azure/login@v2
-    #     with:
-    #       client-id: ${{ secrets.__clientidsecretname__ }}
-    #       tenant-id: ${{ secrets.__tenantidsecretname__ }}
-    #       subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
+name: Deploy to Azure Functions
 
-    #   - name: 'Deploy to Azure Functions'
-    #     uses: Azure/functions-action@v1
-    #     id: deploy-to-function
-    #     with:
-    #       app-name: 'urlMaker'
-    #       slot-name: 'Production'
-    #       package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+env:
+  PYTHON-VERSION: 3.12
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Set-up:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON-VERSION }}
+
+      - name: Create venv and install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r src/azure-function/requirements.txt
+          deactivate
+
+      - name: 'Package and Deploy Function'  
+        shell: pwsh  
+        run: |  
+          # Create deployment zip  
+          Compress-Archive -Path "MyFunctionProject\\\*" -DestinationPath "function.zip" -Force 
+
+      - name: Authenticate to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.CREDS }}
+          
+      - name: Upload to function app
+        shell: pwsh
+        run: |
+          az functionapp deployment source config-zip --resource-group dev  --name urlmaker  --src function.zip  --build-remote true
+
